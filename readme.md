@@ -6,43 +6,43 @@ This project implements **JWT-based authentication** with email **OTP verificati
 
 ## 🔑 Features
 
-- **User Authentication** using JWT (Login, Register, Logout)
-- **OTP-based Email Verification** (instead of links)
-- **Session Management** for tracking logins
-- **Automated Cleanup** of expired OTPs & sessions using **cron jobs**
-- **Error Handling & Async Wrappers** for cleaner code
+- ✅ **User Authentication** using JWT (Login, Register, Logout)
+- ✉️ **OTP-based Email Verification** (instead of links)
+- 🛠️ **Session Management** for tracking logins
+- ⏳ **Automated Cleanup** of expired OTPs & sessions using **cron jobs**
+- ⚡ **Error Handling & Async Wrappers** for cleaner code
 
-## 🏗️ Project Structure
+## 📂 Project Structure
 
 ```
-JWT-AUTH/
-│── config/
-│   ├── db.js             # MongoDB connection
+📁 JWT-AUTH/
+├── 📂 config/
+│   ├── 🗄️ db.js             # MongoDB connection
 │
-│── controllers/
-│   ├── auth.js           # Authentication logic
+├── 📂 controllers/
+│   ├── 🔑 auth.js           # Authentication logic
 │
-│── middleware/
-│   ├── authenticate.js   # Middleware to protect routes
+├── 📂 middleware/
+│   ├── 🛡️ authenticate.js   # Middleware to protect routes
 │
-│── models/
-│   ├── user.js           # User schema
-│   ├── otp.js            # OTP schema
-│   ├── session.js        # Session schema
+├── 📂 models/
+│   ├── 👤 user.js           # User schema
+│   ├── 🔢 otp.js            # OTP schema
+│   ├── 📌 session.js        # Session schema
 │
-│── routes/
-│   ├── authRoute.js      # Authentication routes
+├── 📂 routes/
+│   ├── 🚏 authRoute.js      # Authentication routes
 │
-│── utils/
-│   ├── cronJobs.js       # Cron job to delete expired OTPs & sessions
-│   ├── sendEmail.js      # Utility for sending OTP emails
-│   ├── wrapAsync.js      # Async wrapper for clean controllers
-│   ├── ExpressError.js   # Custom error handling
+├── 📂 utils/
+│   ├── ⏳ cronJobs.js       # Cron job to delete expired OTPs & sessions
+│   ├── 📧 sendEmail.js      # Utility for sending OTP emails
+│   ├── 🏗️ wrapAsync.js      # Async wrapper for clean controllers
+│   ├── ⚠️ ExpressError.js   # Custom error handling
 │
-│── .env                  # Environment variables
-│── server.js             # Entry point
-│── package.json          # Dependencies & scripts
-│── .gitignore            # Ignore unnecessary files
+├── 📄 .env                  # Environment variables
+├── 🚀 server.js             # Entry point
+├── 📦 package.json          # Dependencies & scripts
+├── 📜 .gitignore            # Ignore unnecessary files
 ```
 
 ## 🛠️ Installation & Setup
@@ -66,7 +66,7 @@ Create a **.env** file in the root directory and add:
 
 ```
 PORT=your_port
-MONGO_URL=your_mongodb_connection_string
+MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 EMAIL_USER=your_email
 EMAIL_PASS=your_email_password
@@ -102,5 +102,3 @@ This project is licensed under the MIT License.
 
 🌟 **Contributions & Suggestions Welcome!** 🌟
 Feel free to fork, raise issues, or suggest improvements. Let’s connect and learn together! 🚀
-
-🔗 **GitHub Repository**: [your-repo-link-here]
