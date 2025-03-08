@@ -3,6 +3,7 @@ if (process.env.NODE_ENV != "production") {
 }
 const connectDB = require("./config/db");
 connectDB();
+require("./utils/cronJobs");
 
 const express = require("express");
 const app = express();
