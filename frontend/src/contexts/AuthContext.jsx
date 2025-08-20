@@ -70,6 +70,7 @@ export const AuthProvider = ({ children }) => {
 
       if (res.data.valid) {
         setEmail(email); // Store email for OTP verification and resend
+        navigate("/auth/login");
         toast.success(res.data.message);
       }
     } catch (error) {
@@ -88,19 +89,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Resend OTP Function
-  const resendOtp = async () => {
-    try {
-      const res = await axios.post(
-        `${backendURl}/api/auth/resend-otp`,
-        { email },
-        { withCredentials: true }
-      );
-      toast.success(res.data.message || "OTP resent successfully!");
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to resend OTP ❌");
-      throw error;
-    }
-  };
+  // const resendOtp = async () => {
+  //   try {
+  //     const res = await axios.post(
+  //       `${backendURl}/api/auth/resend-otp`,
+  //       { email },
+  //       { withCredentials: true }
+  //     );
+  //     toast.success(res.data.message || "OTP resent successfully!");
+  //   } catch (error) {
+  //     toast.error(error.response?.data?.message || "Failed to resend OTP ❌");
+  //     throw error;
+  //   }
+  // };
 
   const login = async (email, password) => {
     try {
@@ -129,7 +130,7 @@ export const AuthProvider = ({ children }) => {
         toast.error(res.data.error || "Unknown error");
       }
     } catch (error) {
-      toast.error(error.response?.data?.error || "Login failed ❌");
+      toast.error(error.response?.data?.message || "Login failed ❌");
       throw error;
     }
   };
@@ -162,7 +163,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         signup,
         verify,
-        resendOtp,
+        // resendOtp,
         login,
         logout,
         email,

@@ -9,7 +9,7 @@ const {
   login,
   logout,
   verify,
-  resendOTP,
+  // resendOTP,
   verifySession,
 } = require("../controllers/auth");
 
@@ -18,7 +18,7 @@ router.post("/signup", wrapAsync(signup));
 
 router.post("/verify", wrapAsync(verify));
 
-router.post("/resend-otp", wrapAsync(resendOTP));
+// router.post("/resend-otp", wrapAsync(resendOTP));
 
 // ✅ User Login
 router.post("/login", wrapAsync(login));

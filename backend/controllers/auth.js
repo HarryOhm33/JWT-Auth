@@ -2,11 +2,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const Session = require("../models/session");
-const otpGenerator = require("otp-generator");
+// const otpGenerator = require("otp-generator");
 const sendEmail = require("../utils/sendEmail");
 const EmailToken = require("../models/emailToken");
-const emailToken = require("../models/emailToken");
 const crypto = require("crypto");
+const { generateVerificationEmail } = require("../utils/mailTemplates");
 
 module.exports.signup = async (req, res) => {
   const { name, email, password } = req.body;
@@ -16,7 +16,9 @@ module.exports.signup = async (req, res) => {
 
   const existingUser = await User.findOne({ email });
   if (existingUser && existingUser.isVerified)
-    return res.status(400).json({ message: "Email already exists" });
+    return res
+      .status(400)
+      .json({ message: "Email already exists, Please Log in" });
 
   // Delete old token if exists
   await EmailToken.deleteOne({ email });
@@ -49,11 +51,13 @@ module.exports.signup = async (req, res) => {
   const verificationLink = `${
     process.env.FRONTEND_URL
   }/auth/verify?token=${token}&email=${encodeURIComponent(email)}`;
-  await sendEmail(
-    email,
-    "Verify Your Account",
-    `Click to verify: ${verificationLink}\n\nThis link is valid for 10 minutes.`
-  );
+
+  const htmlContent = generateVerificationEmail(name, verificationLink);
+
+  await sendEmail(email, "Verify Your Account", {
+    text: "Please verify your account using the code/link.",
+    html: htmlContent,
+  });
 
   res.status(200).json({
     valid: true,
@@ -85,7 +89,7 @@ module.exports.verify = async (req, res) => {
   await user.save();
 
   // ✅ Delete email token after successful verification
-  await emailToken.deleteOne({ token: token, email: email });
+  await EmailToken.deleteOne({ token: token, email: email });
 
   res
     .status(200)
@@ -151,26 +155,26 @@ module.exports.logout = async (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 };
 
-module.exports.resendOTP = async (req, res) => {
-  const { email } = req.body;
+// module.exports.resendOTP = async (req, res) => {
+//   const { email } = req.body;
 
-  const existingUser = await OTP.findOne({ email });
-  if (!existingUser)
-    return res.status(400).json({ message: "No pending verification found." });
+//   const existingUser = await OTP.findOne({ email });
+//   if (!existingUser)
+//     return res.status(400).json({ message: "No pending verification found." });
 
-  // ✅ Generate new OTP
-  const otp = otpGenerator.generate(6, {
-    digits: true,
-    upperCaseAlphabets: false, // ❌ Disable uppercase letters
-    lowerCaseAlphabets: false, // ❌ Disable lowercase letters
-    specialChars: false, // ❌ Disable special characters
-  });
+//   // ✅ Generate new OTP
+//   const otp = otpGenerator.generate(6, {
+//     digits: true,
+//     upperCaseAlphabets: false, // ❌ Disable uppercase letters
+//     lowerCaseAlphabets: false, // ❌ Disable lowercase letters
+//     specialChars: false, // ❌ Disable special characters
+//   });
 
-  // ✅ Update OTP in DB
-  await OTP.updateOne({ email }, { otp });
+//   // ✅ Update OTP in DB
+//   await OTP.updateOne({ email }, { otp });
 
-  // ✅ Send OTP via email
-  await sendEmail(email, "Resend OTP", `Your new OTP is ${otp}`);
+//   // ✅ Send OTP via email
+//   await sendEmail(email, "Resend OTP", `Your new OTP is ${otp}`);
 
-  res.status(200).json({ message: "New OTP sent successfully." });
-};
+//   res.status(200).json({ message: "New OTP sent successfully." });
+// };
