@@ -20,15 +20,17 @@ const authenticate = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid token" });
     }
 
+    // console.log("Decoded JWT:", decoded);
+
     // ✅ Check if the token exists in MongoDB sessions
-    const session = await Session.findOne({ userId: decoded.id, token });
+    const session = await Session.findOne({ userId: decoded.user._id, token });
     if (!session) {
       return res
         .status(401)
-        .json({ message: "Session expired, please log in again" });
+        .json({ message: "Session expired, Please log in again" });
     }
 
-    req.user = decoded; // Attach user info to the request
+    req.user = decoded.user; // Attach user info to the request
     next(); // Move to the next middleware/controller
   } catch (error) {
     return res.status(401).json({ message: "Authentication failed" });
