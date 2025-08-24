@@ -3,7 +3,7 @@ const Session = require("../models/session");
 
 const authenticate = async (req, res, next) => {
   try {
-    let token = req.cookies.token || req.header("Authorization");
+    let token = req.cookies.autoKey || req.header("Authorization");
 
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -31,6 +31,7 @@ const authenticate = async (req, res, next) => {
     }
 
     req.user = decoded.user; // Attach user info to the request
+    req.token = token; // Attach token to the request
     next(); // Move to the next middleware/controller
   } catch (error) {
     return res.status(401).json({ message: "Authentication failed" });

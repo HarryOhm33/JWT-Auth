@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
                 err.response?.data.message ||
                 "Session expired, please log in again. ❌"
             );
-            navigate("/login");
+            navigate("/auth/login");
           })
           .finally(() => setLoading(false));
       } else {
@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }) => {
 
       //   console.log(signupData);
 
+      setLoading(true);
       const res = await axios.post(
         `${backendURl}/api/auth/signup`,
         signupData,
@@ -69,12 +70,14 @@ export const AuthProvider = ({ children }) => {
       // console.log(res);
 
       if (res.data.valid) {
+        setLoading(false);
         setEmail(email); // Store email for OTP verification and resend
         navigate("/auth/login");
         toast.success(res.data.message);
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Signup failed ❌");
+      setLoading(false);
       throw error;
     }
   };
@@ -105,6 +108,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      setLoading(true);
       const res = await axios.post(
         `${backendURl}/api/auth/login`,
         { email, password },
@@ -122,14 +126,17 @@ export const AuthProvider = ({ children }) => {
           sameSite: "strict",
         });
 
-        console.log(res.data.token);
+        // console.log(res.data.token);
 
         toast.success("Login successful!");
+        setLoading(false);
         navigate("/dashboard");
       } else {
+        setLoading(false);
         toast.error(res.data.error || "Unknown error");
       }
     } catch (error) {
+      setLoading(false);
       toast.error(error.response?.data?.message || "Login failed ❌");
       throw error;
     }
@@ -156,6 +163,50 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const forgotPassword = async (email) => {
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${backendURl}/api/auth/forgot-password`,
+        { email },
+        { withCredentials: true }
+      );
+
+      if (res.data.valid) {
+        toast.success(res.data.message || "Password reset link sent to email");
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      toast.error(
+        error.response?.data?.message || "Failed to send reset link ❌"
+      );
+    }
+  };
+
+  const resetPassword = async (token, email, newPassword) => {
+    try {
+      // console.log(token, email, newPassword);
+      setLoading(true);
+      const res = await axios.post(
+        `${backendURl}/api/auth/reset-password`,
+        { token, email, newPassword },
+        { withCredentials: true }
+      );
+
+      if (res.data.valid) {
+        toast.success(res.data.message || "Password reset successful!");
+        setLoading(false);
+        navigate("/auth/login");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Password reset failed ❌");
+      setLoading(false);
+      navigate("/auth/forgot-password");
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -167,6 +218,8 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         email,
+        forgotPassword,
+        resetPassword,
       }}
     >
       {children}

@@ -6,7 +6,10 @@ const Session = require("../models/session");
 const sendEmail = require("../utils/sendEmail");
 const EmailToken = require("../models/emailToken");
 const crypto = require("crypto");
-const { generateVerificationEmail } = require("../utils/mailTemplates");
+const {
+  generateVerificationEmail,
+  generatePasswordResetEmail,
+} = require("../utils/mailTemplates");
 
 module.exports.signup = async (req, res) => {
   const { name, email, password } = req.body;
@@ -125,10 +128,12 @@ module.exports.login = async (req, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
+  const { password: pwd, ...userData } = user.toObject(); // Exclude password
+
   res.status(200).json({
     valid: true,
     message: "Login successful",
-    user: user,
+    user: userData,
     token: token,
   });
 };
@@ -138,13 +143,19 @@ module.exports.verifySession = async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const { password, ...userData } = user.toObject();
   // ✅ Return user info
-  res.status(200).json({ valid: true, user: req.user });
+  res.status(200).json({ valid: true, user: userData });
 };
 
 module.exports.logout = async (req, res) => {
   // ✅ Delete the session from MongoDB
-  await Session.deleteOne({ userId: req.user._id });
+  await Session.deleteOne({ userId: req.user._id, token: req.token });
 
   // ✅ Clear the authentication cookie
   res.clearCookie("autoKey", {
@@ -152,7 +163,7 @@ module.exports.logout = async (req, res) => {
     secure: process.env.NODE_ENV === "production",
   });
 
-  res.status(200).json({ message: "Logged out successfully" });
+  res.status(200).json({ valid: true, message: "Logged out successfully" });
 };
 
 // module.exports.resendOTP = async (req, res) => {
@@ -178,3 +189,65 @@ module.exports.logout = async (req, res) => {
 
 //   res.status(200).json({ message: "New OTP sent successfully." });
 // };
+
+module.exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) return res.status(400).json({ message: "Email is required" });
+
+  const user = await User.findOne({ email });
+  if (!user) return res.status(400).json({ message: "User not found" });
+
+  // delete old token if exists
+  await EmailToken.deleteOne({ email });
+
+  // generate token
+  const token = crypto.randomBytes(32).toString("hex");
+  await EmailToken.create({ email, token });
+
+  // build reset link
+  const resetLink = `${
+    process.env.FRONTEND_URL
+  }/auth/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+
+  // send email
+  const htmlContent = generatePasswordResetEmail(user.name, resetLink);
+
+  await sendEmail(email, "Reset Your Password", {
+    text: "You requested to reset your password.",
+    html: htmlContent,
+  });
+
+  res
+    .status(200)
+    .json({ valid: true, message: "Password reset link sent to email" });
+};
+
+module.exports.resetPassword = async (req, res) => {
+  const { token, email, newPassword } = req.body;
+  // console.log(token, email, newPassword);
+
+  if (!token || !email || !newPassword) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  const record = await EmailToken.findOne({ token, email });
+  if (!record)
+    return res.status(400).json({ message: "Invalid or expired token" });
+
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  // hash new password
+  const hashed = await bcrypt.hash(newPassword, 10);
+  user.password = hashed;
+  await user.save();
+
+  // delete token after reset
+  await EmailToken.deleteOne({ token, email });
+
+  res.status(200).json({
+    valid: true,
+    message: "Password reset successful. Please log in.",
+  });
+};

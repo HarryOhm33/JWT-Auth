@@ -10,6 +10,7 @@ import {
   FiLoader,
   FiMenu,
   FiX,
+  FiGrid,
 } from "react-icons/fi";
 import { useState, useRef, useEffect } from "react";
 
@@ -65,6 +66,11 @@ const Navbar = () => {
         {
           path: "/dashboard",
           label: "Dashboard",
+          icon: <FiGrid className="h-5 w-5" />,
+        },
+        {
+          path: "/profile",
+          label: "Profile",
           icon: <FiUser className="h-5 w-5" />,
         },
       ];

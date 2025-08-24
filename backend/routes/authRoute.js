@@ -11,6 +11,8 @@ const {
   verify,
   // resendOTP,
   verifySession,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/auth");
 
 // ✅ User Signup
@@ -24,6 +26,9 @@ router.post("/verify", wrapAsync(verify));
 router.post("/login", wrapAsync(login));
 
 router.post("/logout", authenticate, wrapAsync(logout));
+
+router.post("/forgot-password", wrapAsync(forgotPassword));
+router.post("/reset-password", wrapAsync(resetPassword));
 
 // ✅ Protected Route Example
 router.post("/verify-session", authenticate, wrapAsync(verifySession));
