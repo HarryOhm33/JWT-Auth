@@ -51,7 +51,7 @@ const Verify = () => {
       setLoading(false);
       setTimeout(() => navigate("/auth/signup"), 3000);
     }
-  }, [location, verify, navigate]);
+  }, []); // 👈 run only once
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">

@@ -71,18 +71,20 @@ module.exports.signup = async (req, res) => {
 
 module.exports.verify = async (req, res) => {
   const { token, email } = req.body;
+  console.log(token, email);
 
   if (!token || !email)
     return res.status(400).json({ message: "Token is required" });
 
   const record = await EmailToken.findOne({ token: token, email: email });
+  // console.log(record);
 
   if (!record) {
     return res.status(400).json({ message: "Invalid or expired token" });
   }
 
   // Change user verification status
-  const user = await User.findOne({ userId: record.userId });
+  const user = await User.findOne({ email: record.email });
 
   if (!user) {
     return res.status(404).json({ message: "User not found" });
