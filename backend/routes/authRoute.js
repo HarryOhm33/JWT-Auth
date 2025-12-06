@@ -34,7 +34,7 @@ router.post("/reset-password", wrapAsync(resetPassword));
 router.post("/verify-session", authenticate, wrapAsync(verifySession));
 
 router.get("/profile", authenticate, (req, res) => {
-  res.status(200).json({ message: "Welcome!", user: req.user });
+  res.status(200).json({ valid: true, message: "Welcome!", user: req.user });
 });
 
 module.exports = router;
