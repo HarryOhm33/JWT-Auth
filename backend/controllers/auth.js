@@ -63,7 +63,7 @@ module.exports.signup = async (req, res) => {
   });
 
   res.status(200).json({
-    valid: true,
+    success: true,
     message:
       "Verification link sent to email(valid for 10 min). Verify to complete signup. Please check your spam folder if you don't see it in your inbox.",
   });
@@ -98,7 +98,7 @@ module.exports.verify = async (req, res) => {
 
   res
     .status(200)
-    .json({ valid: true, message: "Signup successful. You can now log in." });
+    .json({ success: true, message: "Signup successful. You can now log in." });
 };
 
 module.exports.login = async (req, res) => {
@@ -133,7 +133,7 @@ module.exports.login = async (req, res) => {
   const { password: pwd, ...userData } = user.toObject(); // Exclude password
 
   res.status(200).json({
-    valid: true,
+    success: true,
     message: "Login successful",
     user: userData,
     token: token,
@@ -152,7 +152,7 @@ module.exports.verifySession = async (req, res) => {
 
   const { password, ...userData } = user.toObject();
   // ✅ Return user info
-  res.status(200).json({ valid: true, user: userData });
+  res.status(200).json({ success: true, user: userData });
 };
 
 module.exports.logout = async (req, res) => {
@@ -165,7 +165,7 @@ module.exports.logout = async (req, res) => {
     secure: process.env.NODE_ENV === "production",
   });
 
-  res.status(200).json({ valid: true, message: "Logged out successfully" });
+  res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
 // module.exports.resendOTP = async (req, res) => {
@@ -222,7 +222,7 @@ module.exports.forgotPassword = async (req, res) => {
 
   res
     .status(200)
-    .json({ valid: true, message: "Password reset link sent to email" });
+    .json({ success: true, message: "Password reset link sent to email" });
 };
 
 module.exports.resetPassword = async (req, res) => {
@@ -249,7 +249,7 @@ module.exports.resetPassword = async (req, res) => {
   await EmailToken.deleteOne({ token, email });
 
   res.status(200).json({
-    valid: true,
+    success: true,
     message: "Password reset successful. Please log in.",
   });
 };
