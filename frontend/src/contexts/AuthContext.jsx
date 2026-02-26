@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
             {
               headers: { Authorization: `Bearer ${token}` },
               withCredentials: true,
-            }
+            },
           )
           .then((res) => {
             setUser(res.data.user);
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
             toast.error(
               err.response?.data.error ||
                 err.response?.data.message ||
-                "Session expired, please log in again. ❌"
+                "Session expired, please log in again. ❌",
             );
             navigate("/auth/login");
           })
@@ -64,12 +64,12 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.post(
         `${backendURl}/api/auth/signup`,
         signupData,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       // console.log(res);
 
-      if (res.data.valid) {
+      if (res.data.success) {
         setLoading(false);
         setEmail(email); // Store email for OTP verification and resend
         navigate("/auth/login");
@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }) => {
     return await axios.post(
       `${backendURl}/api/auth/verify`,
       { token, email },
-      { withCredentials: true }
+      { withCredentials: true },
     );
   };
 
@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.post(
         `${backendURl}/api/auth/login`,
         { email, password },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       if (res.data.user) {
@@ -151,7 +151,7 @@ export const AuthProvider = ({ children }) => {
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
-        }
+        },
       );
 
       setUser(null);
@@ -169,17 +169,17 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.post(
         `${backendURl}/api/auth/forgot-password`,
         { email },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
-      if (res.data.valid) {
+      if (res.data.success) {
         toast.success(res.data.message || "Password reset link sent to email");
         setLoading(false);
       }
     } catch (error) {
       setLoading(false);
       toast.error(
-        error.response?.data?.message || "Failed to send reset link ❌"
+        error.response?.data?.message || "Failed to send reset link ❌",
       );
     }
   };
@@ -191,10 +191,10 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.post(
         `${backendURl}/api/auth/reset-password`,
         { token, email, newPassword },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
-      if (res.data.valid) {
+      if (res.data.success) {
         toast.success(res.data.message || "Password reset successful!");
         setLoading(false);
         navigate("/auth/login");

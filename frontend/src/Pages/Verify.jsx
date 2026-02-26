@@ -23,13 +23,13 @@ const Verify = () => {
       try {
         const res = await verify(token, email);
 
-        if (res.data.valid) {
+        if (res.data.success) {
           setMessage(res.data.message || "Account verified successfully!");
           setIsSuccess(true);
           setTimeout(() => navigate("/auth/login"), 3000);
         } else {
           setMessage(
-            res.data.message || "Verification failed. Please try again."
+            res.data.message || "Verification failed. Please try again.",
           );
           setIsSuccess(false);
           setTimeout(() => navigate("/auth/signup"), 3000);
