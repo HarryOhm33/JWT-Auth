@@ -69,9 +69,64 @@ module.exports.signup = async (req, res) => {
   });
 };
 
+module.exports.signupMobile = async (req, res) => {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password)
+    return res.status(400).json({ message: "All fields are required" });
+
+  const existingUser = await User.findOne({ email });
+  if (existingUser && existingUser.isVerified)
+    return res
+      .status(400)
+      .json({ message: "Email already exists, Please Log in" });
+
+  // Delete old token if exists
+  await EmailToken.deleteOne({ email });
+
+  // Generate token
+  const token = crypto.randomBytes(32).toString("hex");
+
+  // Hash password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Save token &user
+  await EmailToken.create({ email, token });
+
+  if (!existingUser) {
+    await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      isVerified: false,
+    });
+  } else {
+    // Update existing user
+    existingUser.name = name;
+    existingUser.password = hashedPassword;
+    existingUser.isVerified = false; // Reset verification status
+    await existingUser.save();
+  }
+
+  // Send verification link
+  const verificationLink = `auth-app://verify?token=${token}&email=${encodeURIComponent(email)}`;
+
+  const htmlContent = generateVerificationEmail(name, verificationLink);
+
+  await sendEmail(email, "Verify Your Account", {
+    text: "Please verify your account using the code/link.",
+    html: htmlContent,
+  });
+
+  res.status(200).json({
+    success: true,
+    message:
+      "Verification link sent to email(valid for 10 min). Verify to complete signup. Please check your spam folder if you don't see it in your inbox.",
+  });
+};
+
 module.exports.verify = async (req, res) => {
   const { token, email } = req.body;
-  console.log(token, email);
 
   if (!token || !email)
     return res.status(400).json({ message: "Token is required" });
@@ -211,6 +266,37 @@ module.exports.forgotPassword = async (req, res) => {
   const resetLink = `${
     process.env.FRONTEND_URL
   }/auth/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+
+  // send email
+  const htmlContent = generatePasswordResetEmail(user.name, resetLink);
+
+  await sendEmail(email, "Reset Your Password", {
+    text: "You requested to reset your password.",
+    html: htmlContent,
+  });
+
+  res
+    .status(200)
+    .json({ success: true, message: "Password reset link sent to email" });
+};
+
+module.exports.forgotPasswordMobile = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) return res.status(400).json({ message: "Email is required" });
+
+  const user = await User.findOne({ email });
+  if (!user) return res.status(400).json({ message: "User not found" });
+
+  // delete old token if exists
+  await EmailToken.deleteOne({ email });
+
+  // generate token
+  const token = crypto.randomBytes(32).toString("hex");
+  await EmailToken.create({ email, token });
+
+  // build reset link
+  const resetLink = `auth-app://reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
   // send email
   const htmlContent = generatePasswordResetEmail(user.name, resetLink);

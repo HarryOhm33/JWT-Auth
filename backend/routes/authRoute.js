@@ -13,10 +13,13 @@ const {
   verifySession,
   forgotPassword,
   resetPassword,
+  signupMobile,
+  forgotPasswordMobile,
 } = require("../controllers/auth");
 
 // ✅ User Signup
 router.post("/signup", wrapAsync(signup));
+router.post("/signup-mobile", wrapAsync(signupMobile));
 
 router.post("/verify", wrapAsync(verify));
 
@@ -28,6 +31,8 @@ router.post("/login", wrapAsync(login));
 router.post("/logout", authenticate, wrapAsync(logout));
 
 router.post("/forgot-password", wrapAsync(forgotPassword));
+router.post("/forgot-password-mobile", wrapAsync(forgotPasswordMobile));
+
 router.post("/reset-password", wrapAsync(resetPassword));
 
 // ✅ Protected Route Example
