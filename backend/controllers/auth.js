@@ -109,9 +109,7 @@ module.exports.signupMobile = async (req, res) => {
   }
 
   // Send verification link
-  const verificationLink = `${
-    process.env.FRONTEND_URL
-  }/verify?token=${token}&email=${encodeURIComponent(email)}`;
+  const verificationLink = `auth-app://verify?token=${token}&email=${encodeURIComponent(email)}`;
 
   const htmlContent = generateVerificationEmail(name, verificationLink);
 
@@ -298,9 +296,7 @@ module.exports.forgotPasswordMobile = async (req, res) => {
   await EmailToken.create({ email, token });
 
   // build reset link
-  const resetLink = `${
-    process.env.FRONTEND_URL
-  }/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+  const resetLink = `auth-app://reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
   // send email
   const htmlContent = generatePasswordResetEmail(user.name, resetLink);
